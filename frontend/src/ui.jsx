@@ -1,25 +1,26 @@
-// ui.js
-// Displays the drag-and-drop UI
-// --------------------------------------------------
+// // ui.jsx
+// // Displays the drag-and-drop UI
+// // --------------------------------------------------
 
 import { useState, useRef, useCallback } from 'react';
 import ReactFlow, { Controls, Background, MiniMap } from 'reactflow';
 import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
-import { InputNode } from './nodes/inputNode';
-import { LLMNode } from './nodes/llmNode';
-import { OutputNode } from './nodes/outputNode';
-import { TextNode } from './nodes/textNode';
+import { nodeConfigs } from './nodeConfigs';
+import { GenericNode } from './nodes/genericNode';
 
 import 'reactflow/dist/style.css';
 
 const gridSize = 20;
 const proOptions = { hideAttribution: true };
+
 const nodeTypes = {
-  customInput: InputNode,
-  llm: LLMNode,
-  customOutput: OutputNode,
-  text: TextNode,
+  customInput: GenericNode,
+  llm: GenericNode,
+  customOutput: GenericNode,
+  text: GenericNode,
+  apiCall: GenericNode,
+  dataTransform: GenericNode,
 };
 
 const selector = (state) => ({
@@ -46,9 +47,21 @@ export const PipelineUI = () => {
     } = useStore(selector, shallow);
 
     const getInitNodeData = (nodeID, type) => {
-      let nodeData = { id: nodeID, nodeType: `${type}` };
-      return nodeData;
-    }
+      const config = nodeConfigs[type];
+      if (!config) return { id: nodeID, nodeType: type };
+
+      const fieldData = {};
+      config.fields?.forEach(field => {
+        fieldData[field.name] = field.defaultValue;
+      });
+
+      return {
+        id: nodeID,
+        nodeType: type,
+        config,
+        ...fieldData
+      };
+    };
 
     const onDrop = useCallback(
         (event) => {
@@ -59,7 +72,6 @@ export const PipelineUI = () => {
             const appData = JSON.parse(event.dataTransfer.getData('application/reactflow'));
             const type = appData?.nodeType;
       
-            // check if the dropped element is valid
             if (typeof type === 'undefined' || !type) {
               return;
             }
@@ -80,7 +92,7 @@ export const PipelineUI = () => {
             addNode(newNode);
           }
         },
-        [reactFlowInstance]
+        [reactFlowInstance, getNodeID, addNode]
     );
 
     const onDragOver = useCallback((event) => {
@@ -89,8 +101,7 @@ export const PipelineUI = () => {
     }, []);
 
     return (
-        <>
-        <div ref={reactFlowWrapper} style={{width: '100wv', height: '70vh'}}>
+        <div ref={reactFlowWrapper} style={{width: '100vw', height: '70vh'}}>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -110,6 +121,5 @@ export const PipelineUI = () => {
                 <MiniMap />
             </ReactFlow>
         </div>
-        </>
-    )
-}
+    );
+};
