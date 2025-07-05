@@ -8,6 +8,8 @@ import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
 import { nodeConfigs } from './nodeConfigs';
 import { GenericNode } from './nodes/genericNode';
+import { useTheme } from './contexts/themeContext';
+import { SubmitButton } from './submit';
 
 import 'reactflow/dist/style.css';
 
@@ -23,6 +25,7 @@ const nodeTypes = {
   dataTransform: GenericNode,
 };
 
+
 const selector = (state) => ({
   nodes: state.nodes,
   edges: state.edges,
@@ -34,6 +37,7 @@ const selector = (state) => ({
 });
 
 export const PipelineUI = () => {
+    const { isDarkMode } = useTheme();
     const reactFlowWrapper = useRef(null);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
     const {
@@ -100,6 +104,24 @@ export const PipelineUI = () => {
         event.dataTransfer.dropEffect = 'move';
     }, []);
 
+    const backgroundProps = {
+      color: isDarkMode ? '#374151' : '#d1d5db',
+      gap: gridSize,
+      size: 1,
+    };
+
+    const minimapProps = {
+      style: {
+        backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+        border: `1px solid ${isDarkMode ? '#374151' : '#e5e7eb'}`,
+        borderRadius: '8px',
+      },
+      maskColor: isDarkMode ? '#374151' : '#f3f4f6',
+      nodeColor: isDarkMode ? '#6b7280' : '#9ca3af',
+      nodeBorderRadius: 6,
+    };
+
+
     return (
         <div ref={reactFlowWrapper} style={{width: '100vw', height: '70vh'}}>
             <ReactFlow
@@ -116,10 +138,11 @@ export const PipelineUI = () => {
                 snapGrid={[gridSize, gridSize]}
                 connectionLineType='smoothstep'
             >
-                <Background color="#aaa" gap={gridSize} />
+                <Background {...backgroundProps} />
                 <Controls />
-                <MiniMap />
+                <MiniMap {...minimapProps} />
             </ReactFlow>
+             <SubmitButton />
         </div>
     );
 };

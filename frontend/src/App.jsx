@@ -1,14 +1,15 @@
 import { PipelineToolbar } from './toolbar';
 import { PipelineUI } from './ui';
-import { SubmitButton } from './submit';
+import { ThemeProvider } from './contexts/themeContext';
 
 function App() {
   return (
-    <div>
-      <PipelineToolbar />
-      <PipelineUI />
-      <SubmitButton />
-    </div>
+    <ThemeProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <PipelineToolbar />
+        <PipelineUI />
+      </div>
+    </ThemeProvider>
   );
 }
 
