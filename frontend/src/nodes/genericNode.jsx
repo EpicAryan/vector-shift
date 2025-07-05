@@ -6,8 +6,10 @@ import { useTheme } from '../contexts/themeContext';
 import { BaseNode } from './baseNode';
 import { ChevronDown } from 'lucide-react';
 import { getHandleColorClasses } from '../utils/nodeColors';
+import { AutoResizeTextarea } from '../components/autoResizeTextarea';
+import { useState, useCallback, useRef } from 'react';
 
-const FieldRenderer = ({ field, value, onChange }) => {
+const FieldRenderer = ({ field, value, onChange, onSizeChange  }) => {
   const { isDarkMode } = useTheme();
   
   const baseInputClasses = `
@@ -67,6 +69,19 @@ const FieldRenderer = ({ field, value, onChange }) => {
         </div>
       );
     case 'textarea':
+      if (field.autoResize) {
+        return (
+          <div className="flex-1">
+            <AutoResizeTextarea
+              value={fieldValue}
+              onChange={onChange}
+              placeholder={field.placeholder || 'Enter text...'}
+              className={field.className}
+              onSizeChange={onSizeChange}
+            />
+          </div>
+        );
+      }
       return (
         <textarea 
           value={fieldValue} 
@@ -76,6 +91,7 @@ const FieldRenderer = ({ field, value, onChange }) => {
           placeholder={field.placeholder || 'Enter text...'}
         />
       );
+
     case 'text':
     default:
       return (
@@ -119,17 +135,35 @@ export const GenericNode = ({ id, data }) => {
   const { updateNodeField } = useStore();
   const { isDarkMode } = useTheme();
   const { config } = data;
+  const [nodeHeight, setNodeHeight] = useState(null);
+  const debounceRef = useRef(null);
 
-  if (!config) return null;
-
+  
   const handleFieldChange = (fieldName, value) => {
     updateNodeField(id, fieldName, value);
   };
+  
+  const handleSizeChange = useCallback((dimensions) => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    debounceRef.current = setTimeout(() => {
+      setNodeHeight(dimensions.height);
+    }, 10); 
+  }, []);
+  if (!config) return null;
+
+  const isTextNode = data.nodeType === 'text';
 
   return (
-    <BaseNode title={config.title} className={config.className}>
+    <BaseNode 
+      title={config.title} 
+      className={config.className}
+      height={isTextNode ? nodeHeight : null}
+    >
       {config.fields?.map(field => (
-        <div key={field.name} className="space-y-1">
+        <div key={field.name} className="space-y-2 flex-1 min-h-0">
           <label className={`
             block text-xs font-semibold tracking-wide uppercase
             ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}
@@ -140,6 +174,7 @@ export const GenericNode = ({ id, data }) => {
             field={field}
             value={data[field.name]}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
+            onSizeChange={isTextNode && field.name === 'text' ? handleSizeChange : undefined}
           />
         </div>
       ))}

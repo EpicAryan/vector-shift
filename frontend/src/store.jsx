@@ -1,4 +1,4 @@
-// store.js
+// store.jsx
 
 import { create } from "zustand";
 import {

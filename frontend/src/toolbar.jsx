@@ -1,4 +1,4 @@
-// toolbar.js
+// toolbar.jsx
 
 import { Moon, Sun, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';

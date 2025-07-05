@@ -17,6 +17,41 @@ code {
 }
 
 
+.react-flow__node {
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
 
+.auto-resize-textarea {
+  transition: none !important;
+  overflow: hidden;
+  resize: none;
+  box-sizing: border-box;
+}
 
+/* Smooth node resizing */
+.react-flow__node {
+  will-change: height;
+}
 
+/* Ensure flex containers handle overflow properly */
+.react-flow__node .space-y-1 {
+  min-height: 0;
+  flex: 1;
+}
+
+/* Better text wrapping */
+.auto-resize-textarea {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+/* Enhanced focus states */
+.auto-resize-textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .auto-resize-textarea:focus {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}

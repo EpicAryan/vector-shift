@@ -1,3 +1,5 @@
+//nodeConfigs.jsx
+
 import { Position } from 'reactflow';
 import { getNodeBorderClass, getNodeGradientClass } from './utils/nodeColors';
 
@@ -62,9 +64,11 @@ export const nodeConfigs = {
       { 
         name: "text", 
         label: "Content", 
-        type: "textarea", 
-        defaultValue: "{{input}}",
-        placeholder: "Enter your text content..."
+        type: "textarea",
+        autoResize: true, 
+        defaultValue: "",
+        placeholder: "Enter your text content...",
+        className: "font-mono leading-relaxed"
       },
     ],
   },

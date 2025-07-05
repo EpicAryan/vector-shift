@@ -1,4 +1,4 @@
-// draggableNode.js
+// draggableNode.jsx
 
 import { 
   Download, 
